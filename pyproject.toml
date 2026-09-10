@@ -1,17 +1,18 @@
 [project]
 name = "integrasquad"
 version = "0.2.0"
-description = "Núcleo multiagente consolidado do IntegraSquad"
+description = "Núcleo multiagente persistente do IntegraSquad"
 requires-python = ">=3.11"
 dependencies = [
   "pydantic>=2,<3",
   "python-dotenv>=1,<2",
-  "openai-agents>=0.22.1,<0.23",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8,<10"]
-all = ["integrasquad[dev]"]
+agents = ["openai-agents>=0.22.1,<0.23"]
+storage = ["supabase>=2,<3"]
+dev = ["pytest>=8,<10", "openai-agents>=0.22.1,<0.23"]
+all = ["integrasquad[agents,storage,dev]"]
 
 [build-system]
 requires = ["setuptools>=68"]
