@@ -4,17 +4,53 @@ Repositório canônico do projeto **IntegraSquad**, o motor multiagente da Integ
 
 ## Estado atual
 
-**Etapa 1 da reconstrução: consolidação e fundação — concluída localmente.**
+**Etapa 1 — consolidação no GitHub: concluída.**  
+**Etapa 2 — núcleo textual Researcher -> Strategist -> Copywriter: implementada e testada.**
 
-Este repositório é a nova fonte de verdade. O código experimental das sessões anteriores não é tratado como produção; o histórico e as decisões reaproveitáveis estão documentados em `docs/` e o pacote inicial foi preservado em `archive/`.
+Este repositório é a fonte de verdade do projeto. O código experimental das sessões anteriores não é tratado como produção; o histórico e as decisões reaproveitáveis estão documentados em `docs/`, e o projeto antigo reaproveitado permanece preservado na branch `archive/pre-integrasquad`.
 
-## Nova ordem de construção
+## Ordem de construção
 
-1. Consolidar tudo no GitHub.
-2. Reconstruir o núcleo textual de forma limpa.
-3. Criar memória/estado no Supabase.
-4. Preparar aprovação humana + Publisher.
-5. Só depois voltar para imagem/vídeo.
+1. ✅ Consolidar tudo no GitHub.
+2. ✅ Reconstruir o núcleo textual de forma limpa.
+3. ⏳ Criar memória/estado no Supabase.
+4. ⏳ Preparar aprovação humana + Publisher.
+5. ⏳ Só depois voltar para imagem/vídeo.
+
+## Núcleo textual v0.2
+
+O fluxo implementado é:
+
+`CampaignRequest -> Researcher -> Strategist -> Copywriter -> TextCoreResult`
+
+- Researcher: usa busca web pelo OpenAI Agents SDK e devolve pesquisa estruturada com fontes.
+- Strategist: transforma pesquisa em posicionamento, mensagem, CTA e guardrails.
+- Copywriter: gera o pacote de copy e o brief visual.
+- Nenhum desses agentes publica ou agenda conteúdo.
+- `publication_authorized` permanece `false` nesta etapa.
+
+Consulte `docs/ETAPA2_TEXT_CORE.md` para o contrato detalhado.
+
+## Instalação e testes
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
+pytest -q
+python -m integra.main
+```
+
+Os testes automatizados não consomem a OpenAI API. Para executar o núcleo textual live, disponibilize `OPENAI_API_KEY` em um ambiente seguro e rode:
+
+```bash
+python -m integra.text_core.cli \
+  --goal "Criar campanha para apresentar o IntegraTrampo a eletricistas" \
+  --audience "Eletricistas autônomos" \
+  --location "Teodoro Sampaio, SP"
+```
+
+A chave nunca deve ser commitada no GitHub.
 
 ## Princípios
 
@@ -25,22 +61,11 @@ Este repositório é a nova fonte de verdade. O código experimental das sessõe
 - mídia não pode bloquear o núcleo do produto;
 - o repositório canônico deve permitir retomar o trabalho sem depender de uma sessão de chat.
 
-## Smoke test
-
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
-pytest -q
-python -m integra.main
-```
-
-O smoke test da fundação **não precisa** de chave da OpenAI. O Agents SDK será ativado na Etapa 2.
-
 ## Documentos principais
 
 - `docs/ARCHITECTURE.md` — arquitetura canônica.
 - `docs/REBUILD_ROADMAP.md` — nova sequência de reconstrução.
-- `docs/PROJECT_STATUS.md` — o que está confirmado, experimental e pendente.
+- `docs/PROJECT_STATUS.md` — estado confirmado do projeto.
 - `docs/PROTOTYPE_HISTORY.md` — histórico das Etapas 1–7 e lições aprendidas.
-- `archive/` — histórico textual, pacote inicial e contexto preservados no próprio GitHub; a branch `archive/pre-integrasquad` mantém o projeto antigo que foi reaproveitado.
+- `docs/ETAPA2_TEXT_CORE.md` — contrato e operação do núcleo textual.
+- `archive/` — contexto preservado; a branch `archive/pre-integrasquad` mantém o sistema antigo reaproveitado.
