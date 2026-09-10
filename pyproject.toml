@@ -1,6 +1,6 @@
 [project]
 name = "integrasquad"
-version = "0.4.0"
+version = "0.6.0"
 description = "Núcleo multiagente persistente do IntegraSquad"
 requires-python = ">=3.11"
 dependencies = [

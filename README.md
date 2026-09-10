@@ -8,23 +8,31 @@ Repositório canônico do **IntegraSquad**, o motor multiagente da Integra.
 - ✅ Etapa 2 — núcleo textual Researcher -> Strategist -> Copywriter
 - ✅ Etapa 3 — memória e estado persistentes no Supabase
 - ✅ Etapa 4 — aprovação humana + Publisher preparado
-- ⏳ Etapa 5 — imagem/vídeo, somente depois da base textual e operacional
+- ✅ Etapa 5 — núcleo de mídia determinístico, sem depender de TTS
+- ✅ Etapa 6 — Reviewer de mídia, templates e ponte de aprovação/publicação
 
 ## Fluxo atual
 
-`CampaignRequest -> Researcher -> Strategist -> Copywriter -> memória/checkpoints -> aprovação humana -> Publisher preparado`
+`CampaignRequest -> Researcher -> Strategist -> Copywriter -> memória/checkpoints -> mídia -> QA -> aprovação humana -> Publisher preparado`
 
-A aprovação humana é **fail-closed**: ela fica vinculada ao `run_id` e ao SHA-256 do payload aprovado. Se o conteúdo mudar depois da aprovação, o Publisher bloqueia novamente. Uma aprovação não pode ser reutilizada em outra execução.
+O QA de mídia verifica o artefato final por regras determinísticas: SHA-256, resolução, proporção 9:16, FPS, duração, codec e áudio quando exigido. O relatório não finge uma revisão visual semântica: seu escopo é `artifact_and_metadata`.
 
-O Publisher também exige uma segunda autorização explícita no momento de uma futura execução externa. Nesta etapa nenhum post foi criado, agendado ou publicado.
+A aprovação humana é **fail-closed**: ela fica vinculada ao `run_id`, ao conteúdo, ao alvo de publicação e ao SHA-256 exato do vídeo. Se o vídeo, o texto, a conta, o horário ou o destino mudar depois da aprovação, o Publisher bloqueia novamente.
+
+O Publisher ainda exige uma segunda autorização explícita no momento de uma futura execução externa. Nenhum post é criado, agendado ou publicado automaticamente por esta etapa.
 
 ## Persistência
 
 O projeto usa tabelas `squad_*` isoladas no Supabase para runs, tasks, artifacts, events, checkpoints, memories, approvals e publications. As tabelas do IntegraSquad têm RLS habilitado e não concedem acesso a `anon` ou `authenticated`; o acesso previsto é server-side.
 
-## Metricool
+## Mídia
 
-A integração disponível foi inspecionada e o código contém um builder de payload compatível com o fluxo de publicação. A chamada externa permanece separada atrás do `ApprovalGate` e do `PublisherService`.
+O pacote `src/integra/media` contém:
+- `MediaManifest` e contratos de cena;
+- `FFmpegMediaRenderer`;
+- `review_media()` e `probe_video()`;
+- três templates iniciais;
+- ponte que cria payload de aprovação contendo o hash exato da mídia.
 
 ## Princípios
 
@@ -49,6 +57,8 @@ pytest -q
 - `docs/ETAPA2_TEXT_CORE.md`
 - `docs/ETAPA3_MEMORY.md`
 - `docs/ETAPA4_APPROVAL_PUBLISHER.md`
+- `docs/ETAPA5_MEDIA.md`
+- `docs/ETAPA6_REVIEW.md`
 - `docs/PROJECT_STATUS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/REBUILD_ROADMAP.md`
