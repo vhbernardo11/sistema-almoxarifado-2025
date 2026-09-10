@@ -1,0 +1,25 @@
+[project]
+name = "integrasquad"
+version = "0.1.0"
+description = "Fundação consolidada do IntegraSquad"
+requires-python = ">=3.11"
+dependencies = [
+  "pydantic>=2,<3",
+  "python-dotenv>=1,<2",
+]
+
+[project.optional-dependencies]
+agents = ["openai-agents>=0.22.1,<0.23"]
+dev = ["pytest>=8,<10"]
+all = ["integrasquad[agents,dev]"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

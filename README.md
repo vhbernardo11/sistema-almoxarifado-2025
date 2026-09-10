@@ -1,40 +1,46 @@
-# sistema-almoxarifado-2025
-Sistema integrado de previsão e controle de estoque para almoxarifado municipal - v2025. Permite gestão de departamentos, cadastro de materiais, distribuição mensal de quantidades e geração de relatórios em CSV e PDF.
+# IntegraSquad
 
+Repositório canônico do projeto **IntegraSquad**, o motor multiagente da Integra para transformar objetivos em pesquisa, estratégia, copy, briefs, revisão, aprovação e — mais adiante — execução externa.
 
-## Como Usar
+## Estado atual
 
-1. **Abrir o Sistema**: Abra o arquivo `v17.html` no seu navegador (Chrome, Firefox, Edge, etc.)
-2. **Painel de Departamentos**: Visualize todos os departamentos municipais e sua situação de previso
-3. **Nova Previso**: Cadastre novos materiais com:
-   - Seleção do departamento
-   - Busca inteligente de materiais
-   - Quantidade anual total
-   - Distribuição automática por mês
-4. **Relatrios**: Gere relatórios em:
-   - CSV para planilhas
-   - PDF para impressão
-5. **Configurações**:
-   - Backup de dados em JSON
-   - Restauração de backup
-   - Importação de dados CSV
+**Etapa 1 da reconstrução: consolidação e fundação — concluída localmente.**
 
-## Características
+Este repositório é a nova fonte de verdade. O código experimental das sessões anteriores não é tratado como produção; o histórico e as decisões reaproveitáveis estão documentados em `docs/` e o pacote inicial foi preservado em `archive/`.
 
-- **Banco de Dados Integrado**: Mais de 1000 materiais de almoxarifado
-- **Departamentos**: 25 departamentos municipais pré-cadastrados
-- **Distribuição Inteligente**: Sistema automático de distribuição mensal
-- **Local Storage**: Dados salvos no navegador (sem servidor necessário)
-- **Responsivo**: Design adaptado para desktop e mobile
+## Nova ordem de construção
 
-## Tecnologias
+1. Consolidar tudo no GitHub.
+2. Reconstruir o núcleo textual de forma limpa.
+3. Criar memória/estado no Supabase.
+4. Preparar aprovação humana + Publisher.
+5. Só depois voltar para imagem/vídeo.
 
-- HTML5
-- CSS3
-- JavaScript (Vanilla)
-- jsPDF para geração de PDF
-- Local Storage API
+## Princípios
 
-## Versão
+- agentes pensam e produzem; ferramentas executam ações externas;
+- publicação externa exige aprovação humana explícita;
+- segredos nunca entram no Git;
+- cada etapa precisa ser testável isoladamente;
+- mídia não pode bloquear o núcleo do produto;
+- o repositório canônico deve permitir retomar o trabalho sem depender de uma sessão de chat.
 
-v6.0 - Sistema Integrado de Controle de Estoque 2025
+## Smoke test
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
+pytest -q
+python -m integra.main
+```
+
+O smoke test da fundação **não precisa** de chave da OpenAI. O Agents SDK será ativado na Etapa 2.
+
+## Documentos principais
+
+- `docs/ARCHITECTURE.md` — arquitetura canônica.
+- `docs/REBUILD_ROADMAP.md` — nova sequência de reconstrução.
+- `docs/PROJECT_STATUS.md` — o que está confirmado, experimental e pendente.
+- `docs/PROTOTYPE_HISTORY.md` — histórico das Etapas 1–7 e lições aprendidas.
+- `archive/` — histórico textual, pacote inicial e contexto preservados no próprio GitHub; a branch `archive/pre-integrasquad` mantém o projeto antigo que foi reaproveitado.

@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "preferred": {
+    "agent_runtime": "OpenAI Agents SDK (Python)",
+    "data_validation": "Pydantic",
+    "configuration": "python-dotenv",
+    "testing": "pytest",
+    "state_later": "Supabase",
+    "web_dashboard_later": "Next.js/React",
+    "deployment_later": "Vercel para dashboard; runtime a decidir conforme necessidade",
+    "video": "Higgsfield",
+    "publishing": "Metricool"
+  },
+  "design_rule": "Preferir APIs/plugins/integradores diretos; usar Playwright/browser automation apenas quando não houver integração confiável.",
+  "credential_rule": "Toda credencial deve vir de variável de ambiente ou conector autorizado; nunca gravar segredo em JSON, código ou Git."
+}

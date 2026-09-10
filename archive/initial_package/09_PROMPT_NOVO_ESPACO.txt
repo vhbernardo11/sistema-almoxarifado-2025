@@ -1,0 +1,24 @@
+NOME DO ESPAÇO: Integra
+
+Use o arquivo 04_ETAPA_1_BOOTSTRAP.json como fonte de verdade do projeto.
+
+Quero construir o IntegraSquad por etapas pequenas e testáveis.
+Execute SOMENTE a ETAPA 1 — Fundação.
+
+Objetivo imediato:
+- criar a estrutura do projeto;
+- configurar Python;
+- declarar OpenAI Agents SDK;
+- criar modelos de dados básicos;
+- criar configuração e .env.example sem segredo;
+- criar smoke test;
+- criar teste mínimo;
+- executar os testes;
+- me mostrar o resultado.
+
+Não avance para o Maestro ainda.
+Não crie dashboard.
+Não publique nada.
+Não invente credenciais.
+Ao concluir, responda exatamente com o marco:
+“ETAPA 1 CONCLUÍDA — fundação validada e pronta para o Maestro.”

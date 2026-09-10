@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_space_name": "Integra",
+  "project_name": "IntegraSquad",
+  "language": "pt-BR",
+  "created_at": "2026-09-09",
+  "purpose": "Construir uma plataforma multiagente própria para coordenar pesquisa, estratégia, copy, design, vídeo, revisão e publicação, começando pelo núcleo técnico e evoluindo em etapas testáveis.",
+  "project_context": {
+    "origin": "Investigação de uma oferta chamada Squad100 e decisão de reproduzir a arquitetura com ferramentas próprias e componentes públicos, sem copiar código proprietário.",
+    "primary_business_context": "IntegraTrampo e demais produtos digitais da Integrai.",
+    "first_proof_of_value": "Receber um tema de campanha do IntegraTrampo e produzir, em fluxo coordenado, pesquisa + estratégia + roteiro/copy; depois evoluir para artes, vídeo, revisão e publicação.",
+    "principles": [
+      "Começar pequeno e provar cada etapa antes de adicionar novos agentes.",
+      "Separar orquestração, ferramentas, memória/estado e interface.",
+      "Manter aprovação humana antes de qualquer publicação externa.",
+      "Persistir estado para permitir retomada após falhas.",
+      "Não armazenar segredos ou chaves de API no repositório.",
+      "Preferir integrações diretas a automação de navegador quando houver API ou plugin confiável."
+    ]
+  },
+  "target_architecture": {
+    "orchestrator": "OpenAI Agents SDK",
+    "language": "Python",
+    "state_and_memory": "Supabase (a partir da etapa de persistência)",
+    "dashboard_later": "Next.js/React + Vercel",
+    "media_generation": "Higgsfield e ferramentas de imagem/vídeo disponíveis",
+    "social_publishing": "Metricool",
+    "optional_open_source_references": [
+      "wshobson/agents",
+      "higgsfield-ai/skills",
+      "BMAD-METHOD",
+      "Hugging Face smolagents"
+    ]
+  },
+  "roadmap": [
+    {"stage": 1, "name": "Fundação", "goal": "Criar repositório, estrutura, dependências, contratos de dados, configuração e smoke test local."},
+    {"stage": 2, "name": "Maestro", "goal": "Criar agente coordenador que interpreta o pedido e monta um plano de execução."},
+    {"stage": 3, "name": "Núcleo textual", "goal": "Adicionar Pesquisador, Estrategista e Copywriter."},
+    {"stage": 4, "name": "Designer", "goal": "Transformar roteiro em briefs e artes consistentes com a marca."},
+    {"stage": 5, "name": "Videomaker", "goal": "Gerar cenas e montar o Reels/MP4."},
+    {"stage": 6, "name": "Revisor", "goal": "Verificar consistência, formato, CTA, marca e erros."},
+    {"stage": 7, "name": "Aprovação humana", "goal": "Exigir aprovação do usuário antes de ações externas."},
+    {"stage": 8, "name": "Publisher", "goal": "Agendar/publicar conteúdo aprovado via Metricool."},
+    {"stage": 9, "name": "Memória e estado", "goal": "Persistir runs, artefatos, checkpoints e retomadas no Supabase."},
+    {"stage": 10, "name": "Execução autônoma", "goal": "Adicionar filas/agendamentos/recuperação de falhas."},
+    {"stage": 11, "name": "Dashboard", "goal": "Criar painel mobile/web para acompanhar agentes e aprovar entregas."},
+    {"stage": 12, "name": "Expansão", "goal": "Adicionar Comercial, Programador, Tester, Jurídico, Analista de métricas e outros."}
+  ],
+  "stage_1": {
+    "objective": "Criar a fundação executável do projeto IntegraSquad sem ainda construir todos os agentes.",
+    "deliverables": ["Repositório/pasta integrasquad","Ambiente Python isolado","Dependência openai-agents declarada","Estrutura src/integra, tests, docs, data e outputs",".env.example sem chaves reais","Modelos JSON/Pydantic para Task, Run, Artifact e AgentResult","Configuração central do projeto","CLI ou main.py com smoke test","README com comandos de execução","Teste mínimo passando"],
+    "security": {"required": ["Nunca commitar OPENAI_API_KEY ou qualquer credencial.","Usar .env apenas localmente.","Adicionar .env ao .gitignore.","Não habilitar publicação automática nesta etapa."]},
+    "definition_of_done": ["Projeto abre sem erro.","Dependências instalam.","pytest -q passa.","python -m integra.main ou comando equivalente executa um smoke test.","Estrutura está preparada para receber o Maestro na etapa 2.","Nenhuma credencial real aparece nos arquivos."],
+    "do_not_do_yet": ["Não criar dashboard.","Não integrar Metricool.","Não gerar vídeos automaticamente.","Não criar dezenas de agentes.","Não implementar autonomia noturna.","Não publicar nada externamente."]
+  }
+}

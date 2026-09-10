@@ -1,0 +1,29 @@
+Feito. A **Etapa 3** já está montada.
+
+O novo comercial ficou com **35 segundos**, em **1080x1920, 30 fps**, juntando:
+- trechos reais dos vídeos anteriores
+- encanador
+- eletricista
+- diarista
+- celular/solução
+- oportunidade chegando
+- conexão acontecendo
+- fechamento novo com o endereço correto
+
+Também mantive a trilha comercial do vídeo anterior e fiz fade de entrada/saída no áudio.
+
+A versão que eu recomendo baixar e usar é esta, porque ficou com boa qualidade e só cerca de **10 MB**:
+
+[Baixar Comercial IntegraTrampo — Etapa 3 otimizado](sandbox:/mnt/data/integratrampo_etapa3/IntegraTrampo_Etapa3_Comercial_v1_OTIMIZADO.mp4)
+
+Se quiser a versão mais pesada, com compressão menor:
+
+[Baixar Comercial IntegraTrampo — qualidade alta](sandbox:/mnt/data/integratrampo_etapa3/IntegraTrampo_Etapa3_Comercial_v1.mp4)
+
+E deixei o pacote completo com os cortes usados:
+
+[Baixar pacote completo da Etapa 3](sandbox:/mnt/data/IntegraTrampo_Etapa3_Pacote.zip)
+
+A estrutura agora está bem mais alinhada com o que você pediu: o vídeo não fica restrito a empresa procurando funcionário; ele mostra também a ideia de **uma pessoa comum precisando resolver um problema e encontrando profissionais locais**.
+
+Depois que você assistir, podemos partir para a **Etapa 4: acabamento final**, onde eu mexeria em ritmo, transições, trilha/efeitos, locução e CTA para deixar com cara de propaganda pronta para lançamento.

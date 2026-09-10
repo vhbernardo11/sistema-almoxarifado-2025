@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "project": "IntegraSquad",
+  "mvp_agents": [
+    {"id":"maestro","name":"Maestro","stage":2,"responsibility":"Entender o objetivo, decompor em tarefas, selecionar especialistas e consolidar o plano.","external_side_effects":false},
+    {"id":"researcher","name":"Pesquisador","stage":3,"responsibility":"Coletar fatos, tendências, público, dores, concorrentes e referências.","external_side_effects":false},
+    {"id":"strategist","name":"Estrategista","stage":3,"responsibility":"Transformar pesquisa em posicionamento, ângulo, gancho, oferta e CTA.","external_side_effects":false},
+    {"id":"copywriter","name":"Copywriter","stage":3,"responsibility":"Criar roteiro, textos de cena, legenda, CTA e variações.","external_side_effects":false},
+    {"id":"designer","name":"Designer","stage":4,"responsibility":"Converter roteiro em brief visual e gerar artes consistentes com identidade.","external_side_effects":true,"approval_required":false},
+    {"id":"videomaker","name":"Videomaker","stage":5,"responsibility":"Gerar/movimentar cenas e produzir vídeo final.","external_side_effects":true,"approval_required":false},
+    {"id":"reviewer","name":"Revisor","stage":6,"responsibility":"Validar marca, profissão, texto, CTA, duração, consistência e qualidade.","external_side_effects":false},
+    {"id":"publisher","name":"Publisher","stage":8,"responsibility":"Agendar/publicar somente conteúdo previamente aprovado pelo usuário.","external_side_effects":true,"approval_required":true}
+  ]
+}

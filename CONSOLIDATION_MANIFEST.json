@@ -1,0 +1,20 @@
+{
+  "project": "IntegraSquad",
+  "consolidated_at": "2026-09-10",
+  "canonical_branch": "main",
+  "reused_repository": "vhbernardo11/sistema-almoxarifado-2025",
+  "preserved_original_branch": "archive/pre-integrasquad",
+  "preserved_original_head": "d8c5fd726a4af62dc9a15b16da02ca632740859e",
+  "source_material": [
+    "Integra_Pacote_Inicial",
+    "context records from the IntegraTrampo project",
+    "prototype history reconstructed from the project conversation"
+  ],
+  "binary_reference_not_in_critical_path": {
+    "name": "squad100_reference.jpg",
+    "sha256": "d44139936a6a8e0a62445bd600228228d6ffa0ec948128fb181986b25a2138ad",
+    "bytes": 107250
+  },
+  "stage_1_status": "consolidated",
+  "next_stage": "rebuild textual core"
+}

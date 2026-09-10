@@ -1,0 +1,10 @@
+{
+  "package": "Integra_Pacote_Inicial",
+  "created_at": "2026-09-09",
+  "note": "Manifesto histórico preservado. O pacote original continha documentação, starter code e anexos usados na investigação inicial do IntegraSquad.",
+  "binary_reference": {
+    "path_original": "anexos/242190.jpg",
+    "sha256": "d44139936a6a8e0a62445bd600228228d6ffa0ec948128fb181986b25a2138ad",
+    "bytes": 107250
+  }
+}

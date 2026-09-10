@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "workflow": "campaign_to_reel",
+  "input_example": {
+    "goal": "Criar uma campanha do IntegraTrampo para captar diaristas",
+    "channel": "Instagram Reels",
+    "aspect_ratio": "9:16",
+    "requires_human_approval": true
+  },
+  "steps": [
+    {"order": 1, "agent": "maestro", "output": "execution_plan"},
+    {"order": 2, "agent": "researcher", "output": "research_brief"},
+    {"order": 3, "agent": "strategist", "output": "campaign_strategy"},
+    {"order": 4, "agent": "copywriter", "output": "script_and_copy"},
+    {"order": 5, "agent": "designer", "output": "visual_assets"},
+    {"order": 6, "agent": "videomaker", "output": "video_mp4"},
+    {"order": 7, "agent": "reviewer", "output": "qa_report"},
+    {"order": 8, "gate": "human_approval", "allowed": ["approve", "request_changes", "discard"]},
+    {"order": 9, "agent": "publisher", "condition": "human_approval == approve", "output": "publication_result"}
+  ],
+  "failure_policy": {
+    "retryable_steps": ["researcher", "strategist", "copywriter", "designer", "videomaker", "reviewer"],
+    "max_retries_default": 2,
+    "never_auto_retry": ["publisher"],
+    "resume_from_last_successful_checkpoint": true
+  }
+}
