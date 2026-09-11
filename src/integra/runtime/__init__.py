@@ -1,6 +1,7 @@
 from .guards import Stage8TestModeViolation, TestActor, require_stage8_test_actor
 from .handlers import build_stage8_handlers
 from .launcher import build_stage8_worker
+from .stage10 import build_stage10_handlers, build_stage10_worker
 
 __all__ = [
     "Stage8TestModeViolation",
@@ -8,4 +9,6 @@ __all__ = [
     "require_stage8_test_actor",
     "build_stage8_handlers",
     "build_stage8_worker",
+    "build_stage10_handlers",
+    "build_stage10_worker",
 ]

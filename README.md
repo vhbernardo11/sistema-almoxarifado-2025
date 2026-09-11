@@ -8,53 +8,39 @@ Repositório canônico do **IntegraSquad**, o motor multiagente da Integra.
 - ✅ Etapa 2 — núcleo textual Researcher -> Strategist -> Copywriter
 - ✅ Etapa 3 — memória e estado persistentes no Supabase
 - ✅ Etapa 4 — aprovação humana + Publisher preparado
-- ✅ Etapa 5 — núcleo de mídia determinístico, sem depender de TTS
-- ✅ Etapa 6 — Reviewer de mídia, templates e ponte de aprovação/publicação
-- ✅ Etapa 7 — fila persistente, scheduler, retries, heartbeat e recuperação por checkpoint
-- ✅ Etapa 8 — runtime hospedado test-only, cron, observabilidade e alertas internos
-- ✅ Etapa 9 — sala de controle web read-only para fila, ticks, retries, aprovações e alertas de teste
+- ✅ Etapa 5 — núcleo de mídia determinístico
+- ✅ Etapa 6 — Reviewer de mídia, templates e ponte de aprovação
+- ✅ Etapa 7 — fila, scheduler, retries, heartbeat e checkpoint recovery
+- ✅ Etapa 8 — runtime hospedado test-only + cron + observabilidade
+- ✅ Etapa 9 — Sala de Controle read-only
+- 🚧 Etapa 10 — runtime agentic real em homologação, somente usuários sintéticos
 
-## Fluxo atual
+## Fluxo
 
-`CampaignRequest -> agentes -> memória/checkpoints -> mídia -> QA -> aprovação humana -> Publisher preparado`
+`CampaignRequest -> Researcher -> Strategist -> Copywriter -> memória/checkpoints -> mídia -> QA -> aprovação humana -> Publisher preparado`
 
-Por baixo desse fluxo existe uma camada operacional persistente: `squad_jobs`, `squad_schedules`, workers, retries, heartbeat, recovery e um runtime hospedado no Supabase.
+A execução operacional usa `squad_jobs`, workers, retries e checkpoints. A autonomia **não atravessa a barreira humana de publicação**.
 
-## Etapa 8: runtime seguro de teste
+## Etapa 10
 
-A Edge Function `integrasquad-stage8-worker` é invocada automaticamente a cada 5 minutos pelo `pg_cron`. Nesta fase ela é deliberadamente **test-only**:
+O runtime `integrasquad-stage10-runtime` está preparado para processar `text_core.run` apenas quando `test_mode=true` e o ator for `stage8-test-*`. O Researcher usa busca web; Strategist e Copywriter recebem os resultados estruturados. Ao final, o sistema cria uma aprovação `pending` ligada ao SHA-256 do payload exato e mantém `publication_authorized=false`.
 
-- só aceita jobs `test.*`;
-- exige `test_mode=true`;
-- exige ator cadastrado com ID `stage8-test-*`;
-- usa apenas identidades sintéticas com e-mail `@example.invalid`;
-- não registra `publisher.execute`;
-- não publica, não agenda post e não contata usuários reais.
+A fila de aprovação aparece na Sala de Controle, mas é somente leitura. O Publisher não faz parte do registro automático.
 
-O token interno do worker é criado no Supabase Vault e nunca é gravado no Git.
+**Importante:** a chave criada no fluxo seguro do ChatGPT não é copiada automaticamente para o Supabase. Enquanto o secret `OPENAI_API_KEY` não existir no Edge Runtime, a Etapa 10 permanece armada porém não reclama jobs; isso evita execução parcial.
 
-## Etapa 9: sala de controle
+## Usuários de homologação
 
-O painel operacional fica em `integrasquad-dashboard/` e consulta uma Edge Function read-only que devolve somente dados sintéticos. Ele mostra:
-
-- saúde do runtime;
-- jobs concluídos, pendentes, retries e falhas;
-- espera por aprovação humana;
-- ticks do worker;
-- alertas internos;
-- atores de teste habilitados.
-
-A API do painel filtra jobs por `payload.test_mode=true` e `payload.test_actor_id=stage8-test-*`. Não existe botão de publicar, enviar mensagem, executar job ou alterar banco.
-
-## Runtime Python
-
-O pacote `src/integra/runtime` conecta os handlers reais `text_core.run` e `media.review`, ainda atrás do guard de usuário de teste. O pacote `src/integra/dashboard` cria snapshots operacionais filtrados para atores sintéticos.
+Somente identidades sintéticas `stage8-test-*`, com e-mails `@example.invalid`, podem entrar no runtime de teste. Usuários reais são bloqueados.
 
 ## Segurança
 
-A aprovação humana continua **fail-closed**. Autonomia de execução não significa autonomia de publicação: o Publisher exige aprovação do payload exato e autorização explícita de execução.
-
-As tabelas `squad_*` usam RLS e não concedem acesso direto a `anon` ou `authenticated`; operações internas usam backend/service role. A Service Role usada pelo dashboard permanece dentro da Edge Function e não é enviada ao navegador.
+- aprovação humana fail-closed;
+- mudança de payload invalida aprovação anterior;
+- Publisher exige aprovação + autorização explícita de execução;
+- segredos ficam fora do Git;
+- RLS permanece ativo nas tabelas `squad_*`;
+- nenhuma publicação externa é feita durante homologação.
 
 ## Testes
 
@@ -64,6 +50,10 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 pytest -q
 ```
+
+## Dashboard
+
+https://vhbernardo11.github.io/sistema-almoxarifado-2025/integrasquad-dashboard/
 
 ## Documentação
 
@@ -75,6 +65,6 @@ pytest -q
 - `docs/ETAPA7_AUTONOMY.md`
 - `docs/ETAPA8_RUNTIME.md`
 - `docs/ETAPA9_DASHBOARD.md`
+- `docs/ETAPA10_LIVE_TEST_RUNTIME.md`
 - `docs/PROJECT_STATUS.md`
 - `docs/ARCHITECTURE.md`
-- `docs/REBUILD_ROADMAP.md`

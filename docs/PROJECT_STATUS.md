@@ -4,51 +4,35 @@
 Este repositório é o ponto canônico da reconstrução do IntegraSquad.
 
 ## Concluído
-- Etapa 1: consolidação persistente no GitHub;
-- Etapa 2: núcleo textual estruturado Researcher -> Strategist -> Copywriter;
-- Etapa 3: memória/estado persistentes no Supabase com runs, tasks, artifacts, events, checkpoints e memories;
-- Etapa 4: ApprovalGate fail-closed e Publisher preparado;
-- Etapa 5: contratos de mídia e renderer determinístico via FFmpeg;
-- Etapa 6: QA automático de mídia, templates e SHA-256 ligado à aprovação;
-- Etapa 7: fila persistente, scheduler, retry/backoff, heartbeat e recuperação por checkpoint;
-- Etapa 8: runtime hospedado test-only no Supabase Edge Functions, cron a cada 5 minutos, atores sintéticos, telemetria e alertas internos;
-- Etapa 9: dashboard operacional web read-only com snapshot test-only de jobs, ticks, alertas, atores e espera por aprovação.
+- Etapas 1–9: consolidação, núcleo textual, memória Supabase, aprovação/Publisher, mídia, QA, autonomia, runtime hospedado test-only e dashboard operacional.
+- Etapa 10 — implementação estrutural: claim RPC sintético, Edge Function agentic, fila de aprovação no dashboard e runtime Python com ApprovalGate.
 
 ## Invariantes
 - nenhum agente textual publica conteúdo;
 - mídia com erro estrutural não chega à aprovação;
 - aprovação humana pertence ao mesmo `run_id` e payload exato;
 - alteração de conteúdo ou mídia invalida autorização anterior;
-- o Publisher exige autorização explícita além da aprovação;
+- Publisher exige autorização explícita além da aprovação;
 - jobs externos devem ser idempotentes sempre que possível;
 - autonomia operacional não atravessa a barreira de aprovação;
 - segredos ficam fora do Git;
-- homologação usa somente usuários `stage8-test-*`;
-- dashboard da Etapa 9 é somente leitura e não expõe ações mutáveis.
+- homologação usa somente usuários `stage8-test-*`.
 
-## O que a Etapa 9 resolve
-- visão visual da saúde do runtime;
-- contagem de jobs concluídos, pendentes, retries e falhas;
-- identificação de jobs aguardando aprovação humana;
-- histórico de ticks do worker e alertas internos;
-- atualização automática no navegador;
-- API JSON test-only para futuras interfaces;
-- filtro duplo: `test_mode=true` e ator sintético `stage8-test-*`.
+## Etapa 10
+O novo runtime hospedado aceita somente `text_core.run` sintético. Ele foi desenhado para executar Researcher com web search, depois Strategist e Copywriter com saída estruturada, persistir tasks/events/checkpoints e criar `squad_approvals` em `pending`, sempre com `publication_authorized=false`.
 
-## Validação da Etapa 9
-- Edge Function `integrasquad-stage9-dashboard` ativa;
-- endpoint JSON respondeu HTTP 200;
-- snapshot validado com 3 jobs sintéticos, todos concluídos;
-- 1 job sintético continua marcado como `waiting_approval` e `publication_authorized=false`;
-- runtime reportado como `healthy` com tick recente;
-- nenhum usuário real apareceu no snapshot.
+A Sala de Controle agora também possui fila de aprovação humana somente leitura, filtrada por `metadata.test_mode=true` e `stage8-test-*`.
 
-## Limites atuais
-- runtime hospedado continua propositalmente test-only;
-- handlers Python reais `text_core.run` e `media.review` ainda não são executados pela Edge Function Deno;
-- publicação real continua bloqueada até aprovação + autorização explícita;
-- Reviewer de mídia ainda não faz compreensão visual semântica quadro a quadro;
-- alertas são visíveis no painel, mas ainda não são enviados externamente.
+## Bloqueio atual de credencial
+A chave criada pelo fluxo seguro do ChatGPT existe na conta OpenAI, mas não é injetada automaticamente no ambiente das Supabase Edge Functions. O health check da Etapa 10 retorna `openai_key_present=false`. Por segurança, o runtime verifica isso **antes de reclamar qualquer job**.
 
-## Próximo passo
-Etapa 10 recomendada: homologar handlers reais com atores sintéticos, criar uma fila de aprovação operável sem publicação automática e adicionar notificações de falha/espera para o administrador de teste.
+Portanto, a Etapa 10 está implementada e pronta para homologação ao vivo, mas a primeira execução real do modelo só pode ocorrer depois que `OPENAI_API_KEY` for configurada como secret no projeto Supabase.
+
+## Próximo marco dentro da própria Etapa 10
+1. configurar `OPENAI_API_KEY` no Edge Runtime sem expor o valor;
+2. confirmar health `openai_key_present=true`;
+3. processar um único `text_core.run` de `stage8-test-user-001`;
+4. confirmar aprovação `pending`, `publication_authorized=false` e visibilidade no dashboard;
+5. não publicar nada.
+
+Nenhuma Etapa 11 deve começar antes da conclusão dessa homologação e de nova autorização do usuário.

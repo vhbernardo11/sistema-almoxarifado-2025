@@ -41,6 +41,19 @@ class DashboardAlert(BaseModel):
     created_at: datetime | None = None
 
 
+class DashboardApproval(BaseModel):
+    id: str
+    run_id: str
+    decision: str
+    content_digest: str
+    test_actor_id: str
+    purpose: str | None = None
+    preview: dict[str, Any] = Field(default_factory=dict)
+    publication_authorized: bool = False
+    created_at: datetime | None = None
+    decided_at: datetime | None = None
+
+
 class DashboardSnapshot(BaseModel):
     test_mode: bool = True
     health: DashboardHealth = "idle"
@@ -55,5 +68,6 @@ class DashboardSnapshot(BaseModel):
     unresolved_alerts: int = 0
     last_worker_tick_at: datetime | None = None
     jobs: list[DashboardJob] = Field(default_factory=list)
+    approvals: list[DashboardApproval] = Field(default_factory=list)
     ticks: list[DashboardTick] = Field(default_factory=list)
     alerts: list[DashboardAlert] = Field(default_factory=list)
