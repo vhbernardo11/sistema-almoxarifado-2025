@@ -21,15 +21,15 @@ def test_campaign_route_is_ready_and_fail_closed_for_publication():
     assert all(step.external_effect != "publish" for step in plan.steps)
 
 
-def test_software_route_exposes_unfinished_specialists_instead_of_pretending_ready():
+def test_software_route_reflects_stage12_specialists_as_implemented():
     plan = plan_work(WorkRequest(objective="Criar um aplicativo para organizar serviços e corrigir bugs"))
     assert plan.route == "software"
     assert [step.specialist_id for step in plan.steps] == [
         "researcher", "programmer", "tester", "reviewer"
     ]
-    assert plan.ready_for_execution is False
-    assert any("Programmer" in item for item in plan.blockers)
-    assert any("Tester" in item for item in plan.blockers)
+    assert plan.ready_for_execution is True
+    assert plan.blockers == []
+    assert all(step.executable for step in plan.steps)
 
 
 def test_auto_inference_handles_accents_and_common_work_types():

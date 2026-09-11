@@ -15,7 +15,7 @@ Repositório canônico do **IntegraSquad**, o motor multiagente da Integra.
 - ✅ Etapa 9 — Sala de Controle read-only
 - ⏸️ Etapa 10 — runtime agentic real implementado, homologação ao vivo adiada por decisão do usuário
 - ✅ Etapa 11 — Maestro determinístico + catálogo de especialistas e roteamento por tipo de trabalho
-- ⏳ Etapa 12 — executores especializados; não iniciada
+- ✅ Etapa 12 — primeira onda de especialistas determinísticos operacionais
 
 ## Fluxo
 
@@ -33,13 +33,24 @@ A homologação ao vivo foi deliberadamente adiada. Enquanto o secret `OPENAI_AP
 
 O pacote `integra.maestro` cria planos estruturados e reproduzíveis para rotas de campanha, software, comercial, jurídico, SEO, analytics e operações. Cada especialista possui estado explícito (`implemented`, `prepared` ou `blocked`).
 
-O Maestro não finge que uma capacidade está pronta: se a rota depender de um especialista ainda apenas preparado, o plano retorna `ready_for_execution=false` e informa os bloqueios.
-
 O Publisher existe no catálogo arquitetural, mas **não pertence a nenhuma rota automática**. Todo plano nasce com `publication_authorized=false` e `external_actions_authorized=false`.
+
+## Etapa 12
+
+O pacote `integra.specialists` implementa executores determinísticos para:
+
+- Programmer — mudanças declarativas em workspace virtual;
+- Tester — validações de arquivo, conteúdo, JSON e sintaxe Python;
+- Commercial — proposta e abordagem usando somente fatos fornecidos;
+- Legal Reviewer — triagem de riscos com revisão humana obrigatória;
+- SEO Analyst — pacote on-page a partir de palavras-chave fornecidas;
+- Analytics — deltas, funil e alertas sobre métricas fornecidas.
+
+Todos exigem `test_mode=true` e atores `stage8-test-*`. Não fazem publicação nem qualquer efeito externo.
 
 ## Usuários de homologação
 
-Somente identidades sintéticas `stage8-test-*`, com e-mails `@example.invalid`, podem entrar no runtime de teste. Usuários reais são bloqueados.
+Somente identidades sintéticas `stage8-test-*`, com e-mails `@example.invalid`, podem entrar nos runtimes de teste. Usuários reais são bloqueados.
 
 ## Segurança
 
@@ -49,7 +60,8 @@ Somente identidades sintéticas `stage8-test-*`, com e-mails `@example.invalid`,
 - segredos ficam fora do Git;
 - RLS permanece ativo nas tabelas `squad_*`;
 - nenhuma publicação externa é feita durante homologação;
-- o Maestro da Etapa 11 apenas planeja e não executa efeitos externos.
+- o Maestro apenas planeja e não executa efeitos externos;
+- especialistas da Etapa 12 operam apenas em modo sintético e determinístico.
 
 ## Testes
 
@@ -76,5 +88,6 @@ https://vhbernardo11.github.io/sistema-almoxarifado-2025/integrasquad-dashboard/
 - `docs/ETAPA9_DASHBOARD.md`
 - `docs/ETAPA10_LIVE_TEST_RUNTIME.md`
 - `docs/ETAPA11_MAESTRO_SPECIALISTS.md`
+- `docs/ETAPA12_SPECIALISTS.md`
 - `docs/PROJECT_STATUS.md`
 - `docs/ARCHITECTURE.md`
