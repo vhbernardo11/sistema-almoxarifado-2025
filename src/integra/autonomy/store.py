@@ -67,13 +67,15 @@ class SupabaseQueueStore:
         return cls(create_client(url, key))
 
     @staticmethod
-    def _data(response: Any) -> list[dict[str, Any]]:
+    def _data(response: Any) -> list[Any]:
         data = getattr(response, "data", None)
         if data is None and isinstance(response, dict):
             data = response.get("data")
-        if isinstance(data, dict):
-            return [data]
-        return list(data or [])
+        if data is None:
+            return []
+        if isinstance(data, list):
+            return data
+        return [data]
 
     @staticmethod
     def _record(row: dict[str, Any]) -> JobRecord:

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from integra.autonomy import InMemoryQueueStore, RetryPolicy, Worker
+from integra.autonomy import CheckpointResumeCoordinator, InMemoryQueueStore, RetryPolicy, Worker
+from integra.memory.store import InMemoryMemoryStore
 
 
 class Clock:
@@ -111,3 +112,40 @@ def test_run_until_idle_has_explicit_limit():
     results = worker.run_until_idle(max_jobs=3)
     assert len(results) == 3
     assert sum(1 for j in store.jobs.values() if j.status == "completed") == 3
+
+
+def test_checkpoint_recovery_job_is_idempotent():
+    clock = Clock()
+    queue = InMemoryQueueStore(now_fn=clock)
+    memory = InMemoryMemoryStore()
+    run_id = memory.create_run(goal="Campanha de teste", context={})
+    memory.save_checkpoint(
+        run_id=run_id,
+        checkpoint_key="after_researcher",
+        resume_sequence=1,
+        snapshot={"stage": "researcher"},
+    )
+    memory.fail_run(run_id, error="interrupção")
+    recovery = CheckpointResumeCoordinator(memory_store=memory, queue_store=queue)
+    first = recovery.enqueue(run_id)
+    second = recovery.enqueue(run_id)
+    assert first is not None
+    assert second is not None
+    assert first.id == second.id
+    assert first.job_type == "run.resume"
+    assert first.priority == 1000
+
+
+def test_completed_run_is_not_requeued_for_resume():
+    queue = InMemoryQueueStore()
+    memory = InMemoryMemoryStore()
+    run_id = memory.create_run(goal="Campanha concluída", context={})
+    memory.save_checkpoint(
+        run_id=run_id,
+        checkpoint_key="done",
+        resume_sequence=1,
+        snapshot={},
+    )
+    memory.complete_run(run_id, current_stage="human_approval")
+    recovery = CheckpointResumeCoordinator(memory_store=memory, queue_store=queue)
+    assert recovery.enqueue(run_id) is None
