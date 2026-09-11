@@ -5,7 +5,7 @@ import pytest
 from integra.autonomy import InMemoryQueueStore
 from integra.memory.store import InMemoryMemoryStore
 from integra.runtime import (
-    TestModeViolation,
+    Stage8TestModeViolation,
     build_stage8_handlers,
     build_stage8_worker,
     require_stage8_test_actor,
@@ -13,9 +13,9 @@ from integra.runtime import (
 
 
 def test_stage8_rejects_non_test_actor():
-    with pytest.raises(TestModeViolation):
+    with pytest.raises(Stage8TestModeViolation):
         require_stage8_test_actor({"test_mode": False, "test_actor_id": "real-user"})
-    with pytest.raises(TestModeViolation):
+    with pytest.raises(Stage8TestModeViolation):
         require_stage8_test_actor({"test_mode": True, "test_actor_id": "user-123"})
 
 
