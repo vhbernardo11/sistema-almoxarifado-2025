@@ -13,11 +13,12 @@ Repositório canônico do **IntegraSquad**, o motor multiagente da Integra.
 - ✅ Etapa 7 — fila, scheduler, retries, heartbeat e checkpoint recovery
 - ✅ Etapa 8 — runtime hospedado test-only + cron + observabilidade
 - ✅ Etapa 9 — Sala de Controle read-only
-- 🚧 Etapa 10 — runtime agentic real em homologação, somente usuários sintéticos
+- ⏸️ Etapa 10 — runtime agentic real implementado, homologação ao vivo adiada por decisão do usuário
+- 🚧 Etapa 11 — Maestro determinístico + catálogo de especialistas e roteamento por tipo de trabalho
 
 ## Fluxo
 
-`CampaignRequest -> Researcher -> Strategist -> Copywriter -> memória/checkpoints -> mídia -> QA -> aprovação humana -> Publisher preparado`
+`Pedido -> Maestro -> especialistas adequados -> memória/checkpoints -> QA -> aprovação humana -> Publisher separado`
 
 A execução operacional usa `squad_jobs`, workers, retries e checkpoints. A autonomia **não atravessa a barreira humana de publicação**.
 
@@ -25,9 +26,15 @@ A execução operacional usa `squad_jobs`, workers, retries e checkpoints. A aut
 
 O runtime `integrasquad-stage10-runtime` está preparado para processar `text_core.run` apenas quando `test_mode=true` e o ator for `stage8-test-*`. O Researcher usa busca web; Strategist e Copywriter recebem os resultados estruturados. Ao final, o sistema cria uma aprovação `pending` ligada ao SHA-256 do payload exato e mantém `publication_authorized=false`.
 
-A fila de aprovação aparece na Sala de Controle, mas é somente leitura. O Publisher não faz parte do registro automático.
+A homologação ao vivo foi deliberadamente adiada. Enquanto o secret `OPENAI_API_KEY` não existir no Edge Runtime, o runtime não reclama jobs.
 
-**Importante:** a chave criada no fluxo seguro do ChatGPT não é copiada automaticamente para o Supabase. Enquanto o secret `OPENAI_API_KEY` não existir no Edge Runtime, a Etapa 10 permanece armada porém não reclama jobs; isso evita execução parcial.
+## Etapa 11
+
+O pacote `integra.maestro` cria planos estruturados e reproduzíveis para rotas de campanha, software, comercial, jurídico, SEO, analytics e operações. Cada especialista possui estado explícito (`implemented`, `prepared` ou `blocked`).
+
+O Maestro não finge que uma capacidade está pronta: se a rota depender de um especialista ainda apenas preparado, o plano retorna `ready_for_execution=false` e informa os bloqueios.
+
+O Publisher existe no catálogo arquitetural, mas **não pertence a nenhuma rota automática**. Todo plano nasce com `publication_authorized=false` e `external_actions_authorized=false`.
 
 ## Usuários de homologação
 
@@ -40,7 +47,8 @@ Somente identidades sintéticas `stage8-test-*`, com e-mails `@example.invalid`,
 - Publisher exige aprovação + autorização explícita de execução;
 - segredos ficam fora do Git;
 - RLS permanece ativo nas tabelas `squad_*`;
-- nenhuma publicação externa é feita durante homologação.
+- nenhuma publicação externa é feita durante homologação;
+- o Maestro da Etapa 11 apenas planeja e não executa efeitos externos.
 
 ## Testes
 
@@ -66,5 +74,6 @@ https://vhbernardo11.github.io/sistema-almoxarifado-2025/integrasquad-dashboard/
 - `docs/ETAPA8_RUNTIME.md`
 - `docs/ETAPA9_DASHBOARD.md`
 - `docs/ETAPA10_LIVE_TEST_RUNTIME.md`
+- `docs/ETAPA11_MAESTRO_SPECIALISTS.md`
 - `docs/PROJECT_STATUS.md`
 - `docs/ARCHITECTURE.md`

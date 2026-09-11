@@ -7,6 +7,25 @@ Este repositório é o ponto canônico da reconstrução do IntegraSquad.
 - Etapas 1–9: consolidação, núcleo textual, memória Supabase, aprovação/Publisher, mídia, QA, autonomia, runtime hospedado test-only e dashboard operacional.
 - Etapa 10 — implementação estrutural: claim RPC sintético, Edge Function agentic, fila de aprovação no dashboard e runtime Python com ApprovalGate.
 
+## Etapa 10 — homologação adiada
+A chave criada pelo fluxo seguro do ChatGPT existe na conta OpenAI, mas não foi injetada no ambiente das Supabase Edge Functions. O health check retorna `openai_key_present=false`.
+
+Por decisão explícita do usuário, essa homologação fica em aberto e deixa de bloquear o avanço estrutural. Nenhum job real de IA será executado enquanto o secret não estiver disponível no runtime.
+
+## Etapa 11 — em implementação
+Objetivo: introduzir um Maestro determinístico e um catálogo canônico de especialistas, permitindo que o sistema planeje diferentes tipos de trabalho sem depender de execução ao vivo de modelo.
+
+Rotas previstas:
+- campanha;
+- software;
+- comercial;
+- jurídico;
+- SEO;
+- analytics;
+- operações.
+
+Cada especialista declara estado (`implemented`, `prepared`, `blocked`) e efeito externo. O Publisher permanece fora de todas as rotas automáticas.
+
 ## Invariantes
 - nenhum agente textual publica conteúdo;
 - mídia com erro estrutural não chega à aprovação;
@@ -16,23 +35,12 @@ Este repositório é o ponto canônico da reconstrução do IntegraSquad.
 - jobs externos devem ser idempotentes sempre que possível;
 - autonomia operacional não atravessa a barreira de aprovação;
 - segredos ficam fora do Git;
-- homologação usa somente usuários `stage8-test-*`.
+- homologação usa somente usuários `stage8-test-*`;
+- planos do Maestro sempre nascem com `publication_authorized=false` e `external_actions_authorized=false`.
 
-## Etapa 10
-O novo runtime hospedado aceita somente `text_core.run` sintético. Ele foi desenhado para executar Researcher com web search, depois Strategist e Copywriter com saída estruturada, persistir tasks/events/checkpoints e criar `squad_approvals` em `pending`, sempre com `publication_authorized=false`.
-
-A Sala de Controle agora também possui fila de aprovação humana somente leitura, filtrada por `metadata.test_mode=true` e `stage8-test-*`.
-
-## Bloqueio atual de credencial
-A chave criada pelo fluxo seguro do ChatGPT existe na conta OpenAI, mas não é injetada automaticamente no ambiente das Supabase Edge Functions. O health check da Etapa 10 retorna `openai_key_present=false`. Por segurança, o runtime verifica isso **antes de reclamar qualquer job**.
-
-Portanto, a Etapa 10 está implementada e pronta para homologação ao vivo, mas a primeira execução real do modelo só pode ocorrer depois que `OPENAI_API_KEY` for configurada como secret no projeto Supabase.
-
-## Próximo marco dentro da própria Etapa 10
-1. configurar `OPENAI_API_KEY` no Edge Runtime sem expor o valor;
-2. confirmar health `openai_key_present=true`;
-3. processar um único `text_core.run` de `stage8-test-user-001`;
-4. confirmar aprovação `pending`, `publication_authorized=false` e visibilidade no dashboard;
-5. não publicar nada.
-
-Nenhuma Etapa 11 deve começar antes da conclusão dessa homologação e de nova autorização do usuário.
+## Próximo marco da Etapa 11
+1. consolidar contratos do Maestro e dos especialistas;
+2. validar roteamento determinístico com testes;
+3. registrar claramente capacidades ainda apenas preparadas;
+4. manter Publisher e demais efeitos externos fora do planejamento automático;
+5. só depois decidir quais especialistas receberão executores reais.

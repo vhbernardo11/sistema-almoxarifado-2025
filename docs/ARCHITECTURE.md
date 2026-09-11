@@ -8,18 +8,22 @@ Usuário
   v
 Maestro
   |
-  +--> Pesquisador
-  +--> Estrategista
+  +--> Researcher
+  +--> Strategist
   +--> Copywriter
-  +--> Designer / Brief visual
-  +--> Revisor
+  +--> Reviewer
+  +--> Programmer* / Tester*
+  +--> Commercial* / Legal Reviewer*
+  +--> SEO Analyst* / Analytics*
   |
   v
 Checkpoint humano
   |
   v
-Publisher
+Publisher separado
 ```
+
+`*` capacidade preparada: contrato definido, executor especializado ainda não conectado.
 
 ## Persistência
 
@@ -33,8 +37,18 @@ Run -> Tasks -> AgentResults -> Artifacts -> Checkpoints
 
 **Agentes pensam e produzem. Ferramentas executam ações determinísticas ou externas.**
 
-O Publisher tem efeito externo e só pode operar após aprovação humana explícita.
+O Maestro planeja e roteia. Ele não publica, não envia mensagens e não transforma um pedido por efeito externo em autorização.
 
-## Decisão de reconstrução
+O Publisher tem efeito externo e só pode operar em fluxo separado após aprovação humana explícita e autorização de execução.
 
-Imagem, vídeo e voz não fazem parte do caminho crítico da primeira versão reconstruída. Eles voltarão apenas depois de o núcleo textual, a persistência e a aprovação/publicação estarem estáveis.
+## Estados de capacidade
+
+- `implemented`: componente existente e coberto por contrato/testes;
+- `prepared`: papel e contrato definidos, mas executor ainda não conectado;
+- `blocked`: indisponível deliberadamente.
+
+Um plano que dependa de capacidade ainda não implementada deve declarar `ready_for_execution=false` em vez de fingir completude.
+
+## Homologação da Etapa 10
+
+O runtime agentic hospedado existe, mas sua homologação ao vivo foi adiada porque o secret `OPENAI_API_KEY` ainda não está no Edge Runtime. Essa pendência não autoriza atalhos nem efeitos externos.
