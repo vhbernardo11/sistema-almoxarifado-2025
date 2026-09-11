@@ -12,12 +12,13 @@ Repositório canônico do **IntegraSquad**, o motor multiagente da Integra.
 - ✅ Etapa 6 — Reviewer de mídia, templates e ponte de aprovação/publicação
 - ✅ Etapa 7 — fila persistente, scheduler, retries, heartbeat e recuperação por checkpoint
 - ✅ Etapa 8 — runtime hospedado test-only, cron, observabilidade e alertas internos
+- ✅ Etapa 9 — sala de controle web read-only para fila, ticks, retries, aprovações e alertas de teste
 
 ## Fluxo atual
 
 `CampaignRequest -> agentes -> memória/checkpoints -> mídia -> QA -> aprovação humana -> Publisher preparado`
 
-Por baixo desse fluxo existe agora uma camada operacional persistente: `squad_jobs`, `squad_schedules`, workers, retries, heartbeat, recovery e um runtime hospedado no Supabase.
+Por baixo desse fluxo existe uma camada operacional persistente: `squad_jobs`, `squad_schedules`, workers, retries, heartbeat, recovery e um runtime hospedado no Supabase.
 
 ## Etapa 8: runtime seguro de teste
 
@@ -32,29 +33,28 @@ A Edge Function `integrasquad-stage8-worker` é invocada automaticamente a cada 
 
 O token interno do worker é criado no Supabase Vault e nunca é gravado no Git.
 
-## Observabilidade
+## Etapa 9: sala de controle
 
-- `squad_runtime_ticks`: telemetria de cada execução do runtime;
-- `squad_runtime_alerts`: falhas e estados que exigem atenção;
-- `squad_test_actors`: usuários sintéticos autorizados para testes.
+O painel operacional fica em `integrasquad-dashboard/` e consulta uma Edge Function read-only que devolve somente dados sintéticos. Ele mostra:
 
-O teste end-to-end da Etapa 8 comprovou execução normal, retry automático até sucesso e espera por aprovação com `publication_authorized=false`.
+- saúde do runtime;
+- jobs concluídos, pendentes, retries e falhas;
+- espera por aprovação humana;
+- ticks do worker;
+- alertas internos;
+- atores de teste habilitados.
+
+A API do painel filtra jobs por `payload.test_mode=true` e `payload.test_actor_id=stage8-test-*`. Não existe botão de publicar, enviar mensagem, executar job ou alterar banco.
 
 ## Runtime Python
 
-O pacote `src/integra/runtime` conecta os handlers reais:
-
-- `text_core.run`;
-- `media.review`;
-- handlers sintéticos de teste.
-
-Todos permanecem atrás do guard de usuário de teste. O Publisher continua ausente do registro automático e falha fechado se alguém tentar enfileirá-lo.
+O pacote `src/integra/runtime` conecta os handlers reais `text_core.run` e `media.review`, ainda atrás do guard de usuário de teste. O pacote `src/integra/dashboard` cria snapshots operacionais filtrados para atores sintéticos.
 
 ## Segurança
 
-A aprovação humana continua **fail-closed**. Autonomia de execução não significa autonomia de publicação: o Publisher exige aprovação do payload exato e uma autorização explícita de execução.
+A aprovação humana continua **fail-closed**. Autonomia de execução não significa autonomia de publicação: o Publisher exige aprovação do payload exato e autorização explícita de execução.
 
-As tabelas `squad_*` usam RLS e não concedem acesso direto a `anon` ou `authenticated`; operações internas usam backend/service role.
+As tabelas `squad_*` usam RLS e não concedem acesso direto a `anon` ou `authenticated`; operações internas usam backend/service role. A Service Role usada pelo dashboard permanece dentro da Edge Function e não é enviada ao navegador.
 
 ## Testes
 
@@ -74,6 +74,7 @@ pytest -q
 - `docs/ETAPA6_REVIEW.md`
 - `docs/ETAPA7_AUTONOMY.md`
 - `docs/ETAPA8_RUNTIME.md`
+- `docs/ETAPA9_DASHBOARD.md`
 - `docs/PROJECT_STATUS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/REBUILD_ROADMAP.md`
