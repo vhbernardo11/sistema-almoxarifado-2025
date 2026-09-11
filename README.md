@@ -10,38 +10,44 @@ Repositório canônico do **IntegraSquad**, o motor multiagente da Integra.
 - ✅ Etapa 4 — aprovação humana + Publisher preparado
 - ✅ Etapa 5 — núcleo de mídia determinístico, sem depender de TTS
 - ✅ Etapa 6 — Reviewer de mídia, templates e ponte de aprovação/publicação
+- ✅ Etapa 7 — fila persistente, scheduler, retries, heartbeat e recuperação por checkpoint
 
 ## Fluxo atual
 
-`CampaignRequest -> Researcher -> Strategist -> Copywriter -> memória/checkpoints -> mídia -> QA -> aprovação humana -> Publisher preparado`
+`CampaignRequest -> agentes -> memória/checkpoints -> mídia -> QA -> aprovação humana -> Publisher preparado`
 
-O QA de mídia verifica o artefato final por regras determinísticas: SHA-256, resolução, proporção 9:16, FPS, duração, codec e áudio quando exigido. O relatório não finge uma revisão visual semântica: seu escopo é `artifact_and_metadata`.
+A Etapa 7 adiciona a camada operacional por baixo do fluxo: `squad_jobs` recebe trabalho idempotente, workers fazem claim atômico, falhas temporárias entram em retry com backoff e jobs abandonados podem ser recuperados por heartbeat expirado. `squad_schedules` materializa trabalhos recorrentes sem misturar agenda com lógica de agente.
 
-A aprovação humana é **fail-closed**: ela fica vinculada ao `run_id`, ao conteúdo, ao alvo de publicação e ao SHA-256 exato do vídeo. Se o vídeo, o texto, a conta, o horário ou o destino mudar depois da aprovação, o Publisher bloqueia novamente.
-
-O Publisher ainda exige uma segunda autorização explícita no momento de uma futura execução externa. Nenhum post é criado, agendado ou publicado automaticamente por esta etapa.
+A aprovação humana continua **fail-closed**. Autonomia de execução não significa autonomia de publicação: o Publisher segue exigindo aprovação do payload exato e autorização explícita de execução.
 
 ## Persistência
 
-O projeto usa tabelas `squad_*` isoladas no Supabase para runs, tasks, artifacts, events, checkpoints, memories, approvals e publications. As tabelas do IntegraSquad têm RLS habilitado e não concedem acesso a `anon` ou `authenticated`; o acesso previsto é server-side.
+O projeto usa tabelas `squad_*` isoladas no Supabase para runs, tasks, artifacts, events, checkpoints, memories, approvals, publications, jobs e schedules. As tabelas do IntegraSquad têm RLS habilitado e não concedem acesso direto a `anon` ou `authenticated`; o acesso previsto é server-side.
 
-## Mídia
+## Autonomia
 
-O pacote `src/integra/media` contém:
-- `MediaManifest` e contratos de cena;
-- `FFmpegMediaRenderer`;
-- `review_media()` e `probe_video()`;
-- três templates iniciais;
-- ponte que cria payload de aprovação contendo o hash exato da mídia.
+O pacote `src/integra/autonomy` contém:
+- fila em memória para testes e fila Supabase para produção;
+- claim atômico para múltiplos workers;
+- prioridade, idempotência, tentativas e backoff exponencial;
+- heartbeat e recuperação de worker interrompido;
+- scheduler recorrente com intervalo mínimo de 60 segundos;
+- `CheckpointResumeCoordinator` para transformar um checkpoint retomável em job `run.resume`.
+
+O Worker executa um `tick()` por chamada ou drena apenas até um limite explícito. Não existe loop infinito escondido no SDK. Para operar 24/7 ainda é necessário hospedar/invocar o Worker em um runtime backend com os segredos apropriados.
+
+## Mídia e aprovação
+
+O QA de mídia verifica SHA-256, resolução, proporção, FPS, duração, codec e áudio quando exigido. O SHA-256 da mídia faz parte do payload de aprovação. Qualquer alteração do vídeo, texto, conta, horário ou destino invalida a autorização anterior.
 
 ## Princípios
 
 - agentes pensam e produzem; ferramentas executam ações externas;
 - nenhuma publicação externa sem aprovação humana explícita;
-- conteúdo alterado depois da aprovação precisa ser aprovado novamente;
+- autonomia operacional não contorna ApprovalGate nem Publisher;
 - segredos nunca entram no Git;
 - cada etapa precisa ser testável isoladamente;
-- mídia não pode bloquear o núcleo do produto.
+- tarefas precisam ser idempotentes e retomáveis sempre que possível.
 
 ## Testes
 
@@ -59,6 +65,7 @@ pytest -q
 - `docs/ETAPA4_APPROVAL_PUBLISHER.md`
 - `docs/ETAPA5_MEDIA.md`
 - `docs/ETAPA6_REVIEW.md`
+- `docs/ETAPA7_AUTONOMY.md`
 - `docs/PROJECT_STATUS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/REBUILD_ROADMAP.md`
