@@ -1,7 +1,7 @@
 [project]
 name = "integrasquad"
-version = "0.7.0"
-description = "Núcleo multiagente persistente e retomável do IntegraSquad"
+version = "0.8.0"
+description = "Núcleo multiagente persistente, retomável e operável do IntegraSquad"
 requires-python = ">=3.11"
 dependencies = [
   "pydantic>=2,<3",

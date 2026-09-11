@@ -11,43 +11,50 @@ Repositório canônico do **IntegraSquad**, o motor multiagente da Integra.
 - ✅ Etapa 5 — núcleo de mídia determinístico, sem depender de TTS
 - ✅ Etapa 6 — Reviewer de mídia, templates e ponte de aprovação/publicação
 - ✅ Etapa 7 — fila persistente, scheduler, retries, heartbeat e recuperação por checkpoint
+- ✅ Etapa 8 — runtime hospedado test-only, cron, observabilidade e alertas internos
 
 ## Fluxo atual
 
 `CampaignRequest -> agentes -> memória/checkpoints -> mídia -> QA -> aprovação humana -> Publisher preparado`
 
-A Etapa 7 adiciona a camada operacional por baixo do fluxo: `squad_jobs` recebe trabalho idempotente, workers fazem claim atômico, falhas temporárias entram em retry com backoff e jobs abandonados podem ser recuperados por heartbeat expirado. `squad_schedules` materializa trabalhos recorrentes sem misturar agenda com lógica de agente.
+Por baixo desse fluxo existe agora uma camada operacional persistente: `squad_jobs`, `squad_schedules`, workers, retries, heartbeat, recovery e um runtime hospedado no Supabase.
 
-A aprovação humana continua **fail-closed**. Autonomia de execução não significa autonomia de publicação: o Publisher segue exigindo aprovação do payload exato e autorização explícita de execução.
+## Etapa 8: runtime seguro de teste
 
-## Persistência
+A Edge Function `integrasquad-stage8-worker` é invocada automaticamente a cada 5 minutos pelo `pg_cron`. Nesta fase ela é deliberadamente **test-only**:
 
-O projeto usa tabelas `squad_*` isoladas no Supabase para runs, tasks, artifacts, events, checkpoints, memories, approvals, publications, jobs e schedules. As tabelas do IntegraSquad têm RLS habilitado e não concedem acesso direto a `anon` ou `authenticated`; o acesso previsto é server-side.
+- só aceita jobs `test.*`;
+- exige `test_mode=true`;
+- exige ator cadastrado com ID `stage8-test-*`;
+- usa apenas identidades sintéticas com e-mail `@example.invalid`;
+- não registra `publisher.execute`;
+- não publica, não agenda post e não contata usuários reais.
 
-## Autonomia
+O token interno do worker é criado no Supabase Vault e nunca é gravado no Git.
 
-O pacote `src/integra/autonomy` contém:
-- fila em memória para testes e fila Supabase para produção;
-- claim atômico para múltiplos workers;
-- prioridade, idempotência, tentativas e backoff exponencial;
-- heartbeat e recuperação de worker interrompido;
-- scheduler recorrente com intervalo mínimo de 60 segundos;
-- `CheckpointResumeCoordinator` para transformar um checkpoint retomável em job `run.resume`.
+## Observabilidade
 
-O Worker executa um `tick()` por chamada ou drena apenas até um limite explícito. Não existe loop infinito escondido no SDK. Para operar 24/7 ainda é necessário hospedar/invocar o Worker em um runtime backend com os segredos apropriados.
+- `squad_runtime_ticks`: telemetria de cada execução do runtime;
+- `squad_runtime_alerts`: falhas e estados que exigem atenção;
+- `squad_test_actors`: usuários sintéticos autorizados para testes.
 
-## Mídia e aprovação
+O teste end-to-end da Etapa 8 comprovou execução normal, retry automático até sucesso e espera por aprovação com `publication_authorized=false`.
 
-O QA de mídia verifica SHA-256, resolução, proporção, FPS, duração, codec e áudio quando exigido. O SHA-256 da mídia faz parte do payload de aprovação. Qualquer alteração do vídeo, texto, conta, horário ou destino invalida a autorização anterior.
+## Runtime Python
 
-## Princípios
+O pacote `src/integra/runtime` conecta os handlers reais:
 
-- agentes pensam e produzem; ferramentas executam ações externas;
-- nenhuma publicação externa sem aprovação humana explícita;
-- autonomia operacional não contorna ApprovalGate nem Publisher;
-- segredos nunca entram no Git;
-- cada etapa precisa ser testável isoladamente;
-- tarefas precisam ser idempotentes e retomáveis sempre que possível.
+- `text_core.run`;
+- `media.review`;
+- handlers sintéticos de teste.
+
+Todos permanecem atrás do guard de usuário de teste. O Publisher continua ausente do registro automático e falha fechado se alguém tentar enfileirá-lo.
+
+## Segurança
+
+A aprovação humana continua **fail-closed**. Autonomia de execução não significa autonomia de publicação: o Publisher exige aprovação do payload exato e uma autorização explícita de execução.
+
+As tabelas `squad_*` usam RLS e não concedem acesso direto a `anon` ou `authenticated`; operações internas usam backend/service role.
 
 ## Testes
 
@@ -66,6 +73,7 @@ pytest -q
 - `docs/ETAPA5_MEDIA.md`
 - `docs/ETAPA6_REVIEW.md`
 - `docs/ETAPA7_AUTONOMY.md`
+- `docs/ETAPA8_RUNTIME.md`
 - `docs/PROJECT_STATUS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/REBUILD_ROADMAP.md`

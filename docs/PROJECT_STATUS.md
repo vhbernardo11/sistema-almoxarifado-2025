@@ -7,35 +7,39 @@ Este repositório é o ponto canônico da reconstrução do IntegraSquad.
 - Etapa 1: consolidação persistente no GitHub;
 - Etapa 2: núcleo textual estruturado Researcher -> Strategist -> Copywriter;
 - Etapa 3: memória/estado persistentes no Supabase com runs, tasks, artifacts, events, checkpoints e memories;
-- Etapa 4: ApprovalGate fail-closed e Publisher preparado, com persistência de approvals/publications e tradução de payload para Metricool;
-- Etapa 5: contratos de mídia e renderer determinístico via FFmpeg, sem dependência obrigatória de voz;
-- Etapa 6: QA automático de mídia, templates iniciais e ligação do SHA-256 do vídeo ao payload de aprovação;
-- Etapa 7: fila persistente e idempotente, scheduler recorrente, claim concorrente seguro, retries com backoff, heartbeat, recuperação de jobs órfãos e ponte de retomada por checkpoint.
+- Etapa 4: ApprovalGate fail-closed e Publisher preparado;
+- Etapa 5: contratos de mídia e renderer determinístico via FFmpeg;
+- Etapa 6: QA automático de mídia, templates e SHA-256 ligado à aprovação;
+- Etapa 7: fila persistente, scheduler, retry/backoff, heartbeat e recuperação por checkpoint;
+- Etapa 8: runtime hospedado test-only no Supabase Edge Functions, cron a cada 5 minutos, atores sintéticos, telemetria e alertas internos.
 
 ## Invariantes
 - nenhum agente textual publica conteúdo;
 - mídia com erro estrutural não chega à aprovação;
-- aprovação humana deve pertencer ao mesmo `run_id` e ao payload exato;
-- qualquer alteração do conteúdo ou da mídia invalida a autorização anterior;
-- o Publisher exige autorização explícita de execução além da aprovação;
+- aprovação humana pertence ao mesmo `run_id` e payload exato;
+- alteração de conteúdo ou mídia invalida autorização anterior;
+- o Publisher exige autorização explícita além da aprovação;
 - jobs externos devem ser idempotentes sempre que possível;
-- autonomia operacional não pode atravessar a barreira de aprovação;
-- segredos ficam fora do Git.
+- autonomia operacional não atravessa a barreira de aprovação;
+- segredos ficam fora do Git;
+- Etapa 8 usa somente usuários de teste `stage8-test-*`.
 
-## O que a Etapa 7 resolve
-- concorrência entre workers com `FOR UPDATE SKIP LOCKED`;
-- trabalho duplicado por meio de `idempotency_key`;
-- falhas transitórias com retry/backoff;
-- worker interrompido com heartbeat e requeue de stale job;
-- agenda recorrente que materializa jobs sem executar lógica de agente dentro do banco;
-- checkpoint retomável convertido em job de recovery.
+## O que a Etapa 8 resolve
+- existe um runtime hospedado que acorda sozinho por cron;
+- o cron usa token aleatório guardado no Supabase Vault;
+- o worker hospedado só reclama jobs sintéticos `test.*`;
+- telemetria de ticks é persistida em `squad_runtime_ticks`;
+- alertas internos ficam em `squad_runtime_alerts`;
+- `test.retry_once` foi validado end-to-end: primeira tentativa em retry e segunda concluída automaticamente pelo cron;
+- `test.waiting_approval` foi validado com `publication_authorized=false`.
 
 ## Limites atuais
-- não há processo Worker hospedado 24/7; a biblioteca está pronta, mas o runtime seguro ainda precisa ser escolhido/conectado;
-- o executor específico de cada pipeline precisa ser registrado no Worker, inclusive o executor de `run.resume`;
+- o runtime hospedado é propositalmente test-only;
+- handlers Python reais `text_core.run` e `media.review` estão conectados no código, mas ainda não são executados pela Edge Function Deno;
 - publicação real continua deliberadamente bloqueada até aprovação + autorização explícita;
 - Reviewer de mídia ainda não faz compreensão visual semântica quadro a quadro;
-- dashboard operacional ainda não existe.
+- não existe dashboard operacional completo;
+- alertas ainda são internos no banco, sem envio externo automático.
 
 ## Próximo passo
-Etapa 8 recomendada: runtime operacional/observabilidade — hospedar o Worker, registrar handlers dos pipelines, adicionar métricas/notificações e construir uma visão simples da fila/runs antes do dashboard completo.
+Etapa 9 recomendada: dashboard operacional para runs, fila, ticks, falhas, retries, aprovações e alertas; depois disso, promover handlers reais para um runtime backend controlado, mantendo usuários teste como padrão durante a homologação.
