@@ -14,7 +14,8 @@ Repositório canônico do **IntegraSquad**, o motor multiagente da Integra.
 - ✅ Etapa 8 — runtime hospedado test-only + cron + observabilidade
 - ✅ Etapa 9 — Sala de Controle read-only
 - ⏸️ Etapa 10 — runtime agentic real implementado, homologação ao vivo adiada por decisão do usuário
-- 🚧 Etapa 11 — Maestro determinístico + catálogo de especialistas e roteamento por tipo de trabalho
+- ✅ Etapa 11 — Maestro determinístico + catálogo de especialistas e roteamento por tipo de trabalho
+- ⏳ Etapa 12 — executores especializados; não iniciada
 
 ## Fluxo
 
