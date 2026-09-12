@@ -15,33 +15,45 @@ Repositório canônico do **IntegraSquad**, o motor multiagente da Integra.
 - ✅ Etapa 9 — Sala de Controle read-only
 - ⏸️ Etapa 10 — runtime agentic real implementado, homologação ao vivo adiada por decisão do usuário
 - ✅ Etapa 11 — Maestro determinístico + catálogo de especialistas
-- ✅ Etapa 12 — especialistas determinísticos operacionais
+- ✅ Etapa 12 — primeira onda de especialistas determinísticos
 - ✅ Etapa 13 — especialistas conectados à fila, runtime hospedado e Sala de Controle
+- ✅ Etapa 14 — workflows multi-especialista do Maestro + segunda onda determinística
 
 ## Fluxo
 
-`Pedido -> Maestro -> especialistas -> squad_jobs -> worker -> resultado/checkpoint -> revisão/aprovação humana -> Publisher separado`
+`Pedido -> Maestro -> workflow multi-especialista -> squad_jobs -> worker -> resultado -> revisão/aprovação humana -> Publisher separado`
 
 A autonomia **não atravessa a barreira humana de publicação**.
 
-## Etapa 13
+## Etapa 14
 
-Programmer, Tester, Commercial, Legal Reviewer, SEO Analyst e Analytics agora possuem tipos de job `specialist.*` e passam pela fila persistente. Um worker hospedado específico reclama somente esses jobs sintéticos, e a Sala de Controle mostra o status de cada especialista.
+A Etapa 14 adiciona executores determinísticos para **Researcher, Strategist, Copywriter e Reviewer**, completando a cobertura dos especialistas usados pelas rotas do Maestro sem depender do runtime agentic da Etapa 10.
 
-O runtime segue estritamente **test-only**: exige `test_mode=true`, atores `stage8-test-*`, `publication_authorized=false` e `external_actions_authorized=false`.
+O novo job `maestro.workflow` executa uma rota inteira em sequência. Cada passo recebe payload explícito e pode referenciar a saída de uma etapa anterior com `{ "$step": "programmer", "path": "data.workspace" }`. Isso permite, por exemplo, o Programmer criar um workspace virtual e o Tester validar exatamente esse resultado.
 
-## Etapa 10
+Rotas disponíveis:
 
-A execução agentic baseada em modelo permanece adiada. Nenhum job de IA ao vivo é necessário para os executores determinísticos das Etapas 12–13.
+- `campaign`: Researcher -> Strategist -> Copywriter -> Reviewer
+- `software`: Researcher -> Programmer -> Tester -> Reviewer
+- `commercial`: Researcher -> Commercial -> Copywriter -> Reviewer
+- `legal`: Researcher -> Legal Reviewer -> Reviewer
+- `seo`: Researcher -> SEO Analyst -> Copywriter -> Reviewer
+- `analytics`: Analytics -> Strategist -> Reviewer
+- `operations`: Strategist -> Reviewer
+
+O Reviewer da Etapa 14 sempre encaminha o resultado para revisão humana. O workflow nunca autoriza publicação nem efeitos externos.
 
 ## Segurança
 
-- aprovação humana fail-closed;
-- Publisher não pertence às rotas automáticas;
-- usuários reais ficam fora da homologação;
-- segredos ficam fora do Git;
-- nenhuma publicação externa é feita durante homologação;
-- especialistas das Etapas 12–13 são determinísticos e test-only.
+- homologação somente com atores `stage8-test-*`;
+- `test_mode=true` obrigatório;
+- `publication_authorized=false` obrigatório;
+- `external_actions_authorized=false` obrigatório;
+- Publisher continua fora das rotas automáticas;
+- Researcher determinístico não navega na web e apenas organiza material fornecido;
+- Programmer continua restrito a workspace virtual;
+- Legal Reviewer continua sendo triagem e exige humano;
+- nenhuma publicação externa é feita durante homologação.
 
 ## Testes
 
@@ -60,4 +72,5 @@ https://vhbernardo11.github.io/sistema-almoxarifado-2025/integrasquad-dashboard/
 
 - `docs/ETAPA12_SPECIALISTS.md`
 - `docs/ETAPA13_RUNTIME_SPECIALISTS.md`
+- `docs/ETAPA14_MAESTRO_WORKFLOWS.md`
 - `docs/PROJECT_STATUS.md`
