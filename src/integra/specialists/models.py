@@ -4,7 +4,11 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-Stage12SpecialistId = Literal[
+SpecialistId = Literal[
+    "researcher",
+    "strategist",
+    "copywriter",
+    "reviewer",
     "programmer",
     "tester",
     "commercial",
@@ -12,6 +16,8 @@ Stage12SpecialistId = Literal[
     "seo_analyst",
     "analytics",
 ]
+# Compatibilidade com o nome histórico da Etapa 12.
+Stage12SpecialistId = SpecialistId
 
 
 class SpecialistExecutionError(RuntimeError):
@@ -19,7 +25,7 @@ class SpecialistExecutionError(RuntimeError):
 
 
 class SpecialistTask(BaseModel):
-    specialist_id: Stage12SpecialistId
+    specialist_id: SpecialistId
     actor_id: str = Field(min_length=8)
     objective: str = Field(min_length=5)
     payload: dict[str, Any] = Field(default_factory=dict)
@@ -29,7 +35,7 @@ class SpecialistTask(BaseModel):
 
 
 class SpecialistResult(BaseModel):
-    specialist_id: Stage12SpecialistId
+    specialist_id: SpecialistId
     actor_id: str
     status: Literal["completed", "needs_review"]
     data: dict[str, Any] = Field(default_factory=dict)
