@@ -12,6 +12,7 @@ from integra.text_core.persistent import run_text_core_persistent
 from .guards import require_stage8_test_actor
 from .stage13 import JOB_TYPE_TO_SPECIALIST, execute_specialist_job
 from .stage14 import execute_stage14_workflow_job
+from .stage15 import execute_stage15_workflow_job
 
 
 def _required(payload: dict[str, Any], key: str) -> Any:
@@ -56,6 +57,7 @@ def build_stage8_handlers(*, memory_store: Any, text_runner: Any = None) -> dict
         "text_core.run": text_core_run,
         "media.review": media_review,
         "maestro.workflow": execute_stage14_workflow_job,
+        "maestro.workflow.v2": execute_stage15_workflow_job,
     }
     for job_type in JOB_TYPE_TO_SPECIALIST:
         handlers[job_type] = execute_specialist_job
