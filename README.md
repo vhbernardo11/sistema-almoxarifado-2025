@@ -14,60 +14,40 @@ Repositório canônico do **IntegraSquad**, o motor multiagente da Integra.
 - ✅ Etapa 8 — runtime hospedado test-only + cron + observabilidade
 - ✅ Etapa 9 — Sala de Controle read-only
 - ⏸️ Etapa 10 — runtime agentic real implementado, homologação ao vivo adiada por decisão do usuário
-- ✅ Etapa 11 — Maestro determinístico + catálogo de especialistas e roteamento por tipo de trabalho
-- ✅ Etapa 12 — primeira onda de especialistas determinísticos operacionais
+- ✅ Etapa 11 — Maestro determinístico + catálogo de especialistas
+- ✅ Etapa 12 — especialistas determinísticos operacionais
+- ✅ Etapa 13 — especialistas conectados à fila, runtime hospedado e Sala de Controle
 
 ## Fluxo
 
-`Pedido -> Maestro -> especialistas adequados -> memória/checkpoints -> QA -> aprovação humana -> Publisher separado`
+`Pedido -> Maestro -> especialistas -> squad_jobs -> worker -> resultado/checkpoint -> revisão/aprovação humana -> Publisher separado`
 
-A execução operacional usa `squad_jobs`, workers, retries e checkpoints. A autonomia **não atravessa a barreira humana de publicação**.
+A autonomia **não atravessa a barreira humana de publicação**.
+
+## Etapa 13
+
+Programmer, Tester, Commercial, Legal Reviewer, SEO Analyst e Analytics agora possuem tipos de job `specialist.*` e passam pela fila persistente. Um worker hospedado específico reclama somente esses jobs sintéticos, e a Sala de Controle mostra o status de cada especialista.
+
+O runtime segue estritamente **test-only**: exige `test_mode=true`, atores `stage8-test-*`, `publication_authorized=false` e `external_actions_authorized=false`.
 
 ## Etapa 10
 
-O runtime `integrasquad-stage10-runtime` está preparado para processar `text_core.run` apenas quando `test_mode=true` e o ator for `stage8-test-*`. O Researcher usa busca web; Strategist e Copywriter recebem os resultados estruturados. Ao final, o sistema cria uma aprovação `pending` ligada ao SHA-256 do payload exato e mantém `publication_authorized=false`.
-
-A homologação ao vivo foi deliberadamente adiada. Enquanto o secret `OPENAI_API_KEY` não existir no Edge Runtime, o runtime não reclama jobs.
-
-## Etapa 11
-
-O pacote `integra.maestro` cria planos estruturados e reproduzíveis para rotas de campanha, software, comercial, jurídico, SEO, analytics e operações. Cada especialista possui estado explícito (`implemented`, `prepared` ou `blocked`).
-
-O Publisher existe no catálogo arquitetural, mas **não pertence a nenhuma rota automática**. Todo plano nasce com `publication_authorized=false` e `external_actions_authorized=false`.
-
-## Etapa 12
-
-O pacote `integra.specialists` implementa executores determinísticos para:
-
-- Programmer — mudanças declarativas em workspace virtual;
-- Tester — validações de arquivo, conteúdo, JSON e sintaxe Python;
-- Commercial — proposta e abordagem usando somente fatos fornecidos;
-- Legal Reviewer — triagem de riscos com revisão humana obrigatória;
-- SEO Analyst — pacote on-page a partir de palavras-chave fornecidas;
-- Analytics — deltas, funil e alertas sobre métricas fornecidas.
-
-Todos exigem `test_mode=true` e atores `stage8-test-*`. Não fazem publicação nem qualquer efeito externo.
-
-## Usuários de homologação
-
-Somente identidades sintéticas `stage8-test-*`, com e-mails `@example.invalid`, podem entrar nos runtimes de teste. Usuários reais são bloqueados.
+A execução agentic baseada em modelo permanece adiada. Nenhum job de IA ao vivo é necessário para os executores determinísticos das Etapas 12–13.
 
 ## Segurança
 
 - aprovação humana fail-closed;
-- mudança de payload invalida aprovação anterior;
-- Publisher exige aprovação + autorização explícita de execução;
+- Publisher não pertence às rotas automáticas;
+- usuários reais ficam fora da homologação;
 - segredos ficam fora do Git;
-- RLS permanece ativo nas tabelas `squad_*`;
 - nenhuma publicação externa é feita durante homologação;
-- o Maestro apenas planeja e não executa efeitos externos;
-- especialistas da Etapa 12 operam apenas em modo sintético e determinístico.
+- especialistas das Etapas 12–13 são determinísticos e test-only.
 
 ## Testes
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -e ".[dev]"
 pytest -q
 ```
@@ -78,16 +58,6 @@ https://vhbernardo11.github.io/sistema-almoxarifado-2025/integrasquad-dashboard/
 
 ## Documentação
 
-- `docs/ETAPA2_TEXT_CORE.md`
-- `docs/ETAPA3_MEMORY.md`
-- `docs/ETAPA4_APPROVAL_PUBLISHER.md`
-- `docs/ETAPA5_MEDIA.md`
-- `docs/ETAPA6_REVIEW.md`
-- `docs/ETAPA7_AUTONOMY.md`
-- `docs/ETAPA8_RUNTIME.md`
-- `docs/ETAPA9_DASHBOARD.md`
-- `docs/ETAPA10_LIVE_TEST_RUNTIME.md`
-- `docs/ETAPA11_MAESTRO_SPECIALISTS.md`
 - `docs/ETAPA12_SPECIALISTS.md`
+- `docs/ETAPA13_RUNTIME_SPECIALISTS.md`
 - `docs/PROJECT_STATUS.md`
-- `docs/ARCHITECTURE.md`
