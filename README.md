@@ -18,41 +18,30 @@ Repositório canônico do **IntegraSquad**, o motor multiagente da Integra.
 - ✅ Etapa 12 — primeira onda de especialistas determinísticos
 - ✅ Etapa 13 — especialistas conectados à fila, runtime hospedado e Sala de Controle
 - ✅ Etapa 14 — workflows multi-especialista do Maestro + segunda onda determinística
+- ✅ Etapa 15 — workflows duráveis, checkpoint por especialista e retomada sem repetir etapas concluídas
 
-## Fluxo
+## Fluxo atual
 
-`Pedido -> Maestro -> workflow multi-especialista -> squad_jobs -> worker -> resultado -> revisão/aprovação humana -> Publisher separado`
+`Pedido -> Maestro -> maestro.workflow.v2 -> ledger de etapas -> worker durável -> revisão/aprovação humana -> Publisher separado`
 
 A autonomia **não atravessa a barreira humana de publicação**.
 
-## Etapa 14
+## Etapa 15
 
-A Etapa 14 adiciona executores determinísticos para **Researcher, Strategist, Copywriter e Reviewer**, completando a cobertura dos especialistas usados pelas rotas do Maestro sem depender do runtime agentic da Etapa 10.
+A Etapa 15 adiciona persistência granular ao workflow do Maestro. Cada especialista concluído é gravado em `squad_workflow_steps`, enquanto `squad_workflows` mantém a posição atual, progresso, status e necessidade de revisão humana.
 
-O novo job `maestro.workflow` executa uma rota inteira em sequência. Cada passo recebe payload explícito e pode referenciar a saída de uma etapa anterior com `{ "$step": "programmer", "path": "data.workspace" }`. Isso permite, por exemplo, o Programmer criar um workspace virtual e o Tester validar exatamente esse resultado.
+Se um worker cair depois do segundo especialista, a execução seguinte não começa de novo: ela reconstrói as saídas já concluídas e continua no próximo passo. O novo tipo de job é `maestro.workflow.v2`.
 
-Rotas disponíveis:
-
-- `campaign`: Researcher -> Strategist -> Copywriter -> Reviewer
-- `software`: Researcher -> Programmer -> Tester -> Reviewer
-- `commercial`: Researcher -> Commercial -> Copywriter -> Reviewer
-- `legal`: Researcher -> Legal Reviewer -> Reviewer
-- `seo`: Researcher -> SEO Analyst -> Copywriter -> Reviewer
-- `analytics`: Analytics -> Strategist -> Reviewer
-- `operations`: Strategist -> Reviewer
-
-O Reviewer da Etapa 14 sempre encaminha o resultado para revisão humana. O workflow nunca autoriza publicação nem efeitos externos.
+A homologação real interrompeu propositalmente um fluxo de software depois de Researcher + Programmer. O job ficou em `retry` com `current_step=2`; a segunda execução retomou diretamente em Tester + Reviewer e terminou com 4/4 etapas, todas com uma única tentativa.
 
 ## Segurança
 
 - homologação somente com atores `stage8-test-*`;
 - `test_mode=true` obrigatório;
-- `publication_authorized=false` obrigatório;
-- `external_actions_authorized=false` obrigatório;
+- `publication_authorized=false` protegido também por CHECK no banco;
+- `external_actions_authorized=false` protegido também por CHECK no banco;
+- RLS nas tabelas de workflow e acesso direto de `anon`/`authenticated` revogado;
 - Publisher continua fora das rotas automáticas;
-- Researcher determinístico não navega na web e apenas organiza material fornecido;
-- Programmer continua restrito a workspace virtual;
-- Legal Reviewer continua sendo triagem e exige humano;
 - nenhuma publicação externa é feita durante homologação.
 
 ## Testes
@@ -73,4 +62,5 @@ https://vhbernardo11.github.io/sistema-almoxarifado-2025/integrasquad-dashboard/
 - `docs/ETAPA12_SPECIALISTS.md`
 - `docs/ETAPA13_RUNTIME_SPECIALISTS.md`
 - `docs/ETAPA14_MAESTRO_WORKFLOWS.md`
+- `docs/ETAPA15_DURABLE_WORKFLOWS.md`
 - `docs/PROJECT_STATUS.md`
